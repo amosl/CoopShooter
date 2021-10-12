@@ -49,6 +49,10 @@ void ASweapon::Fire()
 
 		DrawDebugLine(GetWorld(), eyeLocation, traceEnd, FColor::White, false, 1.0f, 0, 1.0f);
 	}
+	else
+	{
+		UE_LOG(LogTemp, Log, TEXT("=== Owner is Null!"));
+	}
 }
 
 // Called every frame
