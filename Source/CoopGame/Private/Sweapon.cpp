@@ -5,6 +5,8 @@
 #include "Components/SkeletalMeshComponent.h"
 #include "DrawDebugHelpers.h"
 #include "Kismet/GameplayStatics.h"
+#include "Particles/ParticleSystem.h"
+#include "Particles/ParticleSystemComponent.h"
 
 // Sets default values
 ASweapon::ASweapon()
@@ -14,6 +16,9 @@ ASweapon::ASweapon()
 
 	meshComp = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("MeshComp"));
 	RootComponent = meshComp;
+
+	muzzleSocketName = "MuzzleSocket";
+	tracerTargetName = "BeamEnd";
 }
 
 // Called when the game starts or when spawned
@@ -38,6 +43,8 @@ void ASweapon::Fire()
 
 		FVector shortDirection = eyeRotation.Vector();
 		FVector traceEnd = eyeLocation + (shortDirection * 10000);
+		FVector tracerEndPoint = traceEnd;
+
 		FCollisionQueryParams queryParams;
 		queryParams.AddIgnoredActor(owner);
 		queryParams.AddIgnoredActor(this);
@@ -48,14 +55,34 @@ void ASweapon::Fire()
 		{
 			AActor* hitActor = hit.GetActor();
 			UGameplayStatics::ApplyPointDamage(hitActor, 20.f, shortDirection, hit, owner->GetInstigatorController(), this, damageType);
+
+			if (impactEffect)
+			{
+				UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), impactEffect, hit.ImpactPoint, hit.ImpactNormal.Rotation());
+			}	
+			tracerEndPoint = hit.ImpactPoint;
 		}
+	
 
 		DrawDebugLine(GetWorld(), eyeLocation, traceEnd, FColor::White, false, 1.0f, 0, 1.0f);
+
+		if (muzzleEffect)
+		{
+			UGameplayStatics::SpawnEmitterAttached(muzzleEffect, meshComp, muzzleSocketName);
+		}	
+
+		if (tracerEffect)
+		{
+			FVector muzzlePos = meshComp->GetSocketLocation(muzzleSocketName);
+			UParticleSystemComponent* tracerComp = UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), tracerEffect, muzzlePos);
+			if (tracerComp)
+			{
+				tracerComp->SetVectorParameter(tracerTargetName, tracerEndPoint);
+			}
+		}
+		
 	}
-	else
-	{
-		UE_LOG(LogTemp, Log, TEXT("=== Owner is Null!"));
-	}
+	
 }
 
 // Called every frame
