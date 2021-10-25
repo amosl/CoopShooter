@@ -8,6 +8,15 @@
 #include "Particles/ParticleSystem.h"
 #include "Particles/ParticleSystemComponent.h"
 
+static int32 debugWeaponDraw = 0;
+
+FAutoConsoleVariableRef  CVARDebugWeaponDraw(
+	TEXT("COOP.DebugWeapons"),
+	debugWeaponDraw,
+	TEXT("Draw Debug lines for weapons"),
+	ECVF_Cheat);
+
+
 // Sets default values
 ASweapon::ASweapon()
 {
@@ -63,8 +72,11 @@ void ASweapon::Fire()
 			tracerEndPoint = hit.ImpactPoint;
 		}
 	
-
-		DrawDebugLine(GetWorld(), eyeLocation, traceEnd, FColor::White, false, 1.0f, 0, 1.0f);
+		if (debugWeaponDraw > 0)
+		{
+			DrawDebugLine(GetWorld(), eyeLocation, traceEnd, FColor::White, false, 1.0f, 0, 1.0f);
+		}
+		
 
 		if (muzzleEffect)
 		{
