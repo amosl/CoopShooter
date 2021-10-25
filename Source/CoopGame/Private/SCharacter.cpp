@@ -21,7 +21,8 @@ ASCharacter::ASCharacter()
 	cameraComp = CreateDefaultSubobject<UCameraComponent>(TEXT("CameraComp"));
 	cameraComp->SetupAttachment(armComp);
 
-	
+	targetZoomFOV = 65.f;
+	interpSpeed = 20.0f;
 }
 
 // Called when the game starts or when spawned
@@ -29,6 +30,7 @@ void ASCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 	
+	defaultFOV = cameraComp->FieldOfView;
 }
 
 void ASCharacter::MoveForward(float value)
@@ -51,11 +53,25 @@ void ASCharacter::EndCrouch()
 	UnCrouch();
 }
 
+void ASCharacter::BeginZoom()
+{
+	bWantToZoom = true;
+}
+
+
+void ASCharacter::EndZoom()
+{
+	bWantToZoom = false;
+}
+
 // Called every frame
 void ASCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	float targetFOV = bWantToZoom ? targetZoomFOV : defaultFOV;
+	float newFOV = FMath::FInterpTo(cameraComp->FieldOfView, targetFOV, DeltaTime, interpSpeed);
+	cameraComp->SetFieldOfView(newFOV);
 }
 
 // Called to bind functionality to input
@@ -74,7 +90,8 @@ void ASCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 
 	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ACharacter::Jump);
 	
-	
+	PlayerInputComponent->BindAction("Zoom", IE_Pressed, this, &ASCharacter::BeginZoom);
+	PlayerInputComponent->BindAction("Zoom", IE_Released, this, &ASCharacter::EndZoom);
 }
 
 

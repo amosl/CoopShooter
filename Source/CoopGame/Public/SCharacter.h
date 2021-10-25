@@ -33,6 +33,19 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 	USpringArmComponent* armComp;
 
+	bool bWantToZoom;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Player")
+	float targetZoomFOV;
+	
+	float defaultFOV;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Player", meta= (ClampMin=0.1, ClampMax= 100))
+	float interpSpeed;
+
+	void BeginZoom();
+	void EndZoom();
+
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
