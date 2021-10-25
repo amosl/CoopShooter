@@ -8,6 +8,7 @@
 
 class UCameraComponent;
 class USpringArmComponent;
+class ASweapon;
 
 UCLASS()
 class COOPGAME_API ASCharacter : public ACharacter
@@ -45,6 +46,17 @@ protected:
 
 	void BeginZoom();
 	void EndZoom();
+
+	ASweapon* currentWeapon;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Player")
+	TSubclassOf<ASweapon> starterWeaponClass;
+
+	UPROPERTY(VisibleDefaultsOnly, Category = "Player")
+	FName wepAttachSocketName;
+	
+	void Fire();
+	//void EndFire();
 
 public:	
 	// Called every frame

@@ -20,11 +20,12 @@ public:
 	ASweapon();
 
 protected:
-	// Called when the game starts or when spawned
-	virtual void BeginPlay() override;
-
+	
 	UFUNCTION(BlueprintCallable, Category = "Weapon")
-	void Fire();
+	
+
+	void PlayFireFX(FVector endPoint);
+
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon")
 	TSubclassOf<UDamageType> damageType;
@@ -49,7 +50,6 @@ protected:
 	UParticleSystem* tracerEffect;
 
 public:	
-	// Called every frame
-	virtual void Tick(float DeltaTime) override;
+	void Fire();
 
 };
