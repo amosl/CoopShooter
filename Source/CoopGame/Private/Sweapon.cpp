@@ -9,6 +9,7 @@
 #include "Particles/ParticleSystemComponent.h"
 #include "Camera/CameraShakeBase.h"
 #include "PhysicalMaterials/PhysicalMaterial.h"
+#include "../CoopGame.h"
 
 
 static int32 debugWeaponDraw = 0;
@@ -56,7 +57,7 @@ void ASweapon::Fire()
 		queryParams.bReturnPhysicalMaterial = true;
 
 		FHitResult hit;
-		if (GetWorld()->LineTraceSingleByChannel(hit, eyeLocation, traceEnd, ECC_Visibility, queryParams))
+		if (GetWorld()->LineTraceSingleByChannel(hit, eyeLocation, traceEnd, COLLISION_WEAPON, queryParams))
 		{
 			AActor* hitActor = hit.GetActor();
 			UGameplayStatics::ApplyPointDamage(hitActor, 20.f, shortDirection, hit, owner->GetInstigatorController(), this, damageType);
