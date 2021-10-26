@@ -8,6 +8,8 @@
 #include "Particles/ParticleSystem.h"
 #include "Particles/ParticleSystemComponent.h"
 #include "Camera/CameraShakeBase.h"
+#include "PhysicalMaterials/PhysicalMaterial.h"
+
 
 static int32 debugWeaponDraw = 0;
 
@@ -17,6 +19,8 @@ FAutoConsoleVariableRef  CVARDebugWeaponDraw(
 	TEXT("Draw Debug lines for weapons"),
 	ECVF_Cheat);
 
+const int Surface_FleshDefault = 1;
+const int Surface_FleshVunerable = 2;
 
 // Sets default values
 ASweapon::ASweapon()
@@ -49,6 +53,7 @@ void ASweapon::Fire()
 		queryParams.AddIgnoredActor(owner);
 		queryParams.AddIgnoredActor(this);
 		queryParams.bTraceComplex = true;
+		queryParams.bReturnPhysicalMaterial = true;
 
 		FHitResult hit;
 		if (GetWorld()->LineTraceSingleByChannel(hit, eyeLocation, traceEnd, ECC_Visibility, queryParams))
@@ -56,10 +61,25 @@ void ASweapon::Fire()
 			AActor* hitActor = hit.GetActor();
 			UGameplayStatics::ApplyPointDamage(hitActor, 20.f, shortDirection, hit, owner->GetInstigatorController(), this, damageType);
 
-			if (impactEffect)
+			EPhysicalSurface surfaceType = UPhysicalMaterial::DetermineSurfaceType(hit.PhysMaterial.Get());
+
+			UParticleSystem* selEffect = nullptr;
+			switch (surfaceType)
 			{
-				UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), impactEffect, hit.ImpactPoint, hit.ImpactNormal.Rotation());
-			}	
+			case Surface_FleshDefault:
+			case Surface_FleshVunerable:
+				selEffect = fleshImpactEffect;
+				break;
+			default:
+				selEffect = defImpactEffect;
+				break;
+			}
+
+			if (selEffect)
+			{
+				UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), selEffect, hit.ImpactPoint, hit.ImpactNormal.Rotation());
+			}
+
 			tracerEndPoint = hit.ImpactPoint;
 		}
 	
