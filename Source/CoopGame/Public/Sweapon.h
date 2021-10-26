@@ -22,7 +22,7 @@ public:
 
 protected:
 	
-	UFUNCTION(BlueprintCallable, Category = "Weapon")
+	virtual void BeginPlay() override;
 	
 
 	void PlayFireFX(FVector endPoint);
@@ -40,6 +40,8 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon")
 	USkeletalMeshComponent* meshComp;
 
+	UPROPERTY(EditDefaultsOnly, Category = "Weapon")
+	float baseDamage;
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon")
 	UParticleSystem* defImpactEffect;
@@ -55,7 +57,18 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Weapon")
 	TSubclassOf<UCameraShakeBase> fireCamShake;
 
-public:	
-	void Fire();
+	FTimerHandle timerh_shot;
+	float lastFireTime;
 
+	UPROPERTY(EditDefaultsOnly, Category = "Weapon")
+	float rateOfFire;
+	float timeBetweenShots;
+
+	void Fire();
+public:	
+	
+	
+
+	void StartFire();
+	void StopFire();
 };

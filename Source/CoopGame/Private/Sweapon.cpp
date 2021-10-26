@@ -10,7 +10,7 @@
 #include "Camera/CameraShakeBase.h"
 #include "PhysicalMaterials/PhysicalMaterial.h"
 #include "../CoopGame.h"
-
+#include "TimerManager.h"
 
 static int32 debugWeaponDraw = 0;
 
@@ -31,6 +31,15 @@ ASweapon::ASweapon()
 
 	muzzleSocketName = "MuzzleSocket";
 	tracerTargetName = "BeamEnd";
+	baseDamage = 20;
+	rateOfFire = 600;
+}
+
+void ASweapon::BeginPlay()
+{
+	Super::BeginPlay();
+
+	timeBetweenShots = 60 / rateOfFire;
 }
 
 
@@ -60,9 +69,18 @@ void ASweapon::Fire()
 		if (GetWorld()->LineTraceSingleByChannel(hit, eyeLocation, traceEnd, COLLISION_WEAPON, queryParams))
 		{
 			AActor* hitActor = hit.GetActor();
-			UGameplayStatics::ApplyPointDamage(hitActor, 20.f, shortDirection, hit, owner->GetInstigatorController(), this, damageType);
 
 			EPhysicalSurface surfaceType = UPhysicalMaterial::DetermineSurfaceType(hit.PhysMaterial.Get());
+			float actualDamage = baseDamage;
+			if (surfaceType == Surface_FleshVunerable)
+			{
+				actualDamage *= 4.0f;
+			}
+
+
+			UGameplayStatics::ApplyPointDamage(hitActor, actualDamage, shortDirection, hit, owner->GetInstigatorController(), this, damageType);
+
+			
 
 			UParticleSystem* selEffect = nullptr;
 			switch (surfaceType)
@@ -90,8 +108,21 @@ void ASweapon::Fire()
 		}
 		
 		PlayFireFX(tracerEndPoint);
+
+		lastFireTime = GetWorld()->TimeSeconds;
 	}
 	
+}
+
+void ASweapon::StartFire()
+{
+	float firstDelay = FMath::Max(0.f, lastFireTime + timeBetweenShots - GetWorld()->TimeSeconds);
+	GetWorldTimerManager().SetTimer(timerh_shot, this, &ASweapon::Fire, timeBetweenShots, true, firstDelay);
+}
+
+void ASweapon::StopFire()
+{
+	GetWorldTimerManager().ClearTimer(timerh_shot);
 }
 
 void ASweapon::PlayFireFX(FVector endPoint)

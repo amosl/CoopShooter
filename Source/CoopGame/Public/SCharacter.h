@@ -55,8 +55,8 @@ protected:
 	UPROPERTY(VisibleDefaultsOnly, Category = "Player")
 	FName wepAttachSocketName;
 	
-	void Fire();
-	//void EndFire();
+	void StartFire();
+	void StopFire();
 
 public:	
 	// Called every frame
