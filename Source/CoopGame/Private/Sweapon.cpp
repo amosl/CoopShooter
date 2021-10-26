@@ -7,6 +7,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "Particles/ParticleSystem.h"
 #include "Particles/ParticleSystemComponent.h"
+#include "Camera/CameraShakeBase.h"
 
 static int32 debugWeaponDraw = 0;
 
@@ -86,6 +87,16 @@ void ASweapon::PlayFireFX(FVector endPoint)
 		if (tracerComp)
 		{
 			tracerComp->SetVectorParameter(tracerTargetName, endPoint);
+		}
+	}
+
+	APawn* owner = Cast<APawn>(GetOwner());
+	if (owner)
+	{
+		APlayerController* pc = Cast<APlayerController>(owner->GetController());
+		if (pc)
+		{
+			pc->ClientStartCameraShake(fireCamShake);
 		}
 	}
 }
