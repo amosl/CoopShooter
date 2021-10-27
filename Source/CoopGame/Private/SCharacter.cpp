@@ -8,6 +8,8 @@
 #include "GameFramework/PawnMovementComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "../CoopGame.h"
+#include "Components/SHealthComponent.h"
+
 
 // Sets default values
 ASCharacter::ASCharacter()
@@ -22,6 +24,7 @@ ASCharacter::ASCharacter()
 	GetMovementComponent()->GetNavAgentPropertiesRef().bCanCrouch = true;
 	GetCapsuleComponent()->SetCollisionResponseToChannel(COLLISION_WEAPON, ECR_Ignore);
 
+	healthComp = CreateDefaultSubobject<USHealthComponent>(TEXT("HealthComp"));
 	cameraComp = CreateDefaultSubobject<UCameraComponent>(TEXT("CameraComp"));
 	cameraComp->SetupAttachment(armComp);
 
@@ -48,6 +51,25 @@ void ASCharacter::BeginPlay()
 		currentWeapon->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, wepAttachSocketName);
 	}
 
+	healthComp->OnHealthChanged.AddDynamic(this, &ASCharacter::OnHealthChanged);
+}
+
+
+void ASCharacter::OnHealthChanged(USHealthComponent* HealthComp, float Health, float HealthDelta, 
+	const class UDamageType* DamageType, class AController* InstigatedBy, AActor* DamageCauser)
+{
+	UE_LOG(LogTemp, Log, TEXT("Char:> OnHealthChanged"));
+	if (Health <= 0.0f && !bIsDead)
+	{
+		// Die
+		bIsDead = true;
+
+		GetMovementComponent()->StopMovementImmediately();
+		GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+
+		DetachFromControllerPendingDestroy();
+		SetLifeSpan(10.0f);
+	}
 }
 
 void ASCharacter::MoveForward(float value)
