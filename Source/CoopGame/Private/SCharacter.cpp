@@ -2,6 +2,7 @@
 
 
 #include "SCharacter.h"
+#include "Sweapon.h"
 #include "Camera/CameraComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "GameFramework/PawnMovementComponent.h"
@@ -21,14 +22,29 @@ ASCharacter::ASCharacter()
 	cameraComp = CreateDefaultSubobject<UCameraComponent>(TEXT("CameraComp"));
 	cameraComp->SetupAttachment(armComp);
 
-	
+	targetZoomFOV = 65.f;
+	interpSpeed = 20.0f;
+	wepAttachSocketName = "weapon_r_socket";
 }
 
 // Called when the game starts or when spawned
 void ASCharacter::BeginPlay()
 {
 	Super::BeginPlay();
-	
+
+	defaultFOV = cameraComp->FieldOfView;
+
+	// Spawn a def weapon
+	FActorSpawnParameters params;
+	params.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+
+	currentWeapon = GetWorld()->SpawnActor<ASweapon>(starterWeaponClass, FVector::ZeroVector, FRotator::ZeroRotator, params);
+	if (currentWeapon)
+	{
+		currentWeapon->SetOwner(this);
+		currentWeapon->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, wepAttachSocketName);
+	}
+
 }
 
 void ASCharacter::MoveForward(float value)
@@ -51,11 +67,41 @@ void ASCharacter::EndCrouch()
 	UnCrouch();
 }
 
+void ASCharacter::BeginZoom()
+{
+	bWantToZoom = true;
+}
+
+
+void ASCharacter::EndZoom()
+{
+	bWantToZoom = false;
+}
+
+void ASCharacter::StartFire()
+{
+	if (currentWeapon)
+	{
+		currentWeapon->StartFire();
+	}
+}
+
+void ASCharacter::StopFire()
+{
+	if (currentWeapon)
+	{
+		currentWeapon->StopFire();
+	}
+}
+
 // Called every frame
 void ASCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	float targetFOV = bWantToZoom ? targetZoomFOV : defaultFOV;
+	float newFOV = FMath::FInterpTo(cameraComp->FieldOfView, targetFOV, DeltaTime, interpSpeed);
+	cameraComp->SetFieldOfView(newFOV);
 }
 
 // Called to bind functionality to input
@@ -74,7 +120,11 @@ void ASCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 
 	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ACharacter::Jump);
 	
-	
+	PlayerInputComponent->BindAction("Zoom", IE_Pressed, this, &ASCharacter::BeginZoom);
+	PlayerInputComponent->BindAction("Zoom", IE_Released, this, &ASCharacter::EndZoom);
+
+	PlayerInputComponent->BindAction("Fire", IE_Pressed, this, &ASCharacter::StartFire);
+	PlayerInputComponent->BindAction("Fire", IE_Released, this, &ASCharacter::StopFire);
 }
 
 

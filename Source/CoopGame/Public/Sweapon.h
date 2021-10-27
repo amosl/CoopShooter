@@ -9,6 +9,7 @@
 class USkeletalMeshComponent;
 class UDamageType;
 class UParticleSystem;
+class UCameraShakeBase;
 
 UCLASS()
 class COOPGAME_API ASweapon : public AActor
@@ -20,11 +21,12 @@ public:
 	ASweapon();
 
 protected:
-	// Called when the game starts or when spawned
+	
 	virtual void BeginPlay() override;
+	
 
-	UFUNCTION(BlueprintCallable, Category = "Weapon")
-	void Fire();
+	void PlayFireFX(FVector endPoint);
+
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon")
 	TSubclassOf<UDamageType> damageType;
@@ -38,9 +40,13 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon")
 	USkeletalMeshComponent* meshComp;
 
+	UPROPERTY(EditDefaultsOnly, Category = "Weapon")
+	float baseDamage;
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon")
-	UParticleSystem* impactEffect;
+	UParticleSystem* defImpactEffect;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon")
+	UParticleSystem* fleshImpactEffect;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon")
 	UParticleSystem* muzzleEffect;
@@ -48,8 +54,21 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon")
 	UParticleSystem* tracerEffect;
 
-public:	
-	// Called every frame
-	virtual void Tick(float DeltaTime) override;
+	UPROPERTY(EditDefaultsOnly, Category = "Weapon")
+	TSubclassOf<UCameraShakeBase> fireCamShake;
 
+	FTimerHandle timerh_shot;
+	float lastFireTime;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Weapon")
+	float rateOfFire;
+	float timeBetweenShots;
+
+	void Fire();
+public:	
+	
+	
+
+	void StartFire();
+	void StopFire();
 };
