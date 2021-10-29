@@ -4,6 +4,7 @@
 #include "SExplosiveDevice.h"
 #include "Components/SHealthComponent.h"
 #include "PhysicsEngine/RadialForceComponent.h"
+#include "Kismet/GameplayStatics.h"
 
 
 // Sets default values
@@ -47,8 +48,13 @@ void ASExplosiveDevice::OnHealthChanged(USHealthComponent* HealthComp, float Hea
 		meshComp->AddImpulse(launchDir * launchForce, NAME_None, true);
 
 		radialForceComp->FireImpulse();
+		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), explodeEffect, GetActorLocation());
 
 		// Switch material
-		// meshComp->SetMaterial(0, );
+		if (explodeMaterial)
+		{
+			meshComp->SetMaterial(0, explodeMaterial);
+		}
+		 
 	}
 }
