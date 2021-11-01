@@ -11,6 +11,21 @@ class UDamageType;
 class UParticleSystem;
 class UCameraShakeBase;
 
+
+// Info for single weapon line trace
+USTRUCT()
+struct FhitScanTrace
+{
+	GENERATED_BODY()
+
+public:
+	UPROPERTY()
+	TEnumAsByte<EPhysicalSurface> surfaceType;
+
+	UPROPERTY()
+	FVector_NetQuantize traceTo;
+};
+
 UCLASS()
 class COOPGAME_API ASweapon : public AActor
 {
@@ -26,6 +41,7 @@ protected:
 	
 
 	void PlayFireFX(FVector endPoint);
+	void PlayImpactFX(EPhysicalSurface surface, FVector endPoint);
 
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon")
@@ -63,6 +79,12 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Weapon")
 	float rateOfFire;
 	float timeBetweenShots;
+
+	UPROPERTY(ReplicatedUsing = OnRep_HitScanTrace)
+	FhitScanTrace hitScanTrace;
+
+	UFUNCTION()
+	void OnRep_HitScanTrace();
 
 	void Fire();
 
