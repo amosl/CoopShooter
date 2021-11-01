@@ -5,7 +5,7 @@
 #include "Components/SHealthComponent.h"
 #include "PhysicsEngine/RadialForceComponent.h"
 #include "Kismet/GameplayStatics.h"
-
+#include "Net/UnrealNetwork.h"
 
 // Sets default values
 ASExplosiveDevice::ASExplosiveDevice()
@@ -21,6 +21,8 @@ ASExplosiveDevice::ASExplosiveDevice()
 	radialForceComp = CreateDefaultSubobject<URadialForceComponent>(TEXT("RadialForceComp"));
 	radialForceComp->bAutoActivate = false;
 	radialForceComp->SetupAttachment(RootComponent);
+
+	SetReplicates(true);
 }
 
 // Called when the game starts or when spawned
@@ -38,9 +40,10 @@ void ASExplosiveDevice::OnHealthChanged(USHealthComponent* HealthComp, float Hea
 	
 	if (Health <= 0.0f && !bDidExplode)
 	{
-		UE_LOG(LogTemp, Log, TEXT("*** Boom ***"));
+		//UE_LOG(LogTemp, Log, TEXT("*** Boom ***"));
 		// Die
 		bDidExplode = true;
+		OnRep_Exploded();
 
 		// Apply force
 		float launchForce = 400;
@@ -48,13 +51,23 @@ void ASExplosiveDevice::OnHealthChanged(USHealthComponent* HealthComp, float Hea
 		meshComp->AddImpulse(launchDir * launchForce, NAME_None, true);
 
 		radialForceComp->FireImpulse();
-		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), explodeEffect, GetActorLocation());
-
-		// Switch material
-		if (explodeMaterial)
-		{
-			meshComp->SetMaterial(0, explodeMaterial);
-		}
-		 
 	}
+}
+
+void ASExplosiveDevice::OnRep_Exploded()
+{
+	UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), explodeEffect, GetActorLocation());
+
+	// Switch material
+	if (explodeMaterial)
+	{
+		meshComp->SetMaterial(0, explodeMaterial);
+	}
+}
+
+void ASExplosiveDevice::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(ASExplosiveDevice, bDidExplode);
 }
