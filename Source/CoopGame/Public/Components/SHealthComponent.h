@@ -19,11 +19,13 @@ public:
 	// Sets default values for this component's properties
 	USHealthComponent();
 
+	void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
 
-	UPROPERTY(BlueprintReadOnly, Category= "HealthComponent")
+	UPROPERTY(Replicated, BlueprintReadOnly, Category= "HealthComponent")
 	float m_Health;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "HealthComponent")
