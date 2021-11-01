@@ -33,6 +33,8 @@ ASweapon::ASweapon()
 	tracerTargetName = "BeamEnd";
 	baseDamage = 20;
 	rateOfFire = 600;
+
+	SetReplicates(true);
 }
 
 void ASweapon::BeginPlay()
@@ -46,6 +48,12 @@ void ASweapon::BeginPlay()
 void ASweapon::Fire()
 {
 	// Trace the world, from pawn eye to target
+
+	if (!HasAuthority() )
+	{
+		UE_LOG(LogTemp, Log, TEXT(">>> Fire: No authority"));
+		ServerFire();
+	}
 
 	AActor* owner = GetOwner();
 
@@ -112,6 +120,17 @@ void ASweapon::Fire()
 		lastFireTime = GetWorld()->TimeSeconds;
 	}
 	
+}
+
+void ASweapon::ServerFire_Implementation()
+{
+	UE_LOG(LogTemp, Log, TEXT(">>> ServerFire"));
+	Fire();
+}
+
+bool ASweapon::ServerFire_Validate()
+{
+	return true;
 }
 
 void ASweapon::StartFire()

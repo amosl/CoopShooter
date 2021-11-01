@@ -65,6 +65,10 @@ protected:
 	float timeBetweenShots;
 
 	void Fire();
+
+	UFUNCTION(Server, Reliable, WithValidation)
+	void ServerFire();
+
 public:	
 	
 	
