@@ -22,6 +22,8 @@ protected:
 	UPROPERTY(VisibleDefaultsOnly, Category = "Components")
 	UStaticMeshComponent* meshComp;
 
+	FVector GetNextPathPoint();
+
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
