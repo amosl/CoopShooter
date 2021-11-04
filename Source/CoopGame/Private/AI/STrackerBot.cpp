@@ -2,8 +2,10 @@
 
 
 #include "AI/STrackerBot.h"
+#include "SCharacter.h"
 #include "Components/SHealthComponent.h"
 #include "Components/StaticMeshComponent.h"
+#include "Components/SphereComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "GameFramework/Character.h"
 #include "NavigationSystem.h"
@@ -24,6 +26,12 @@ ASTrackerBot::ASTrackerBot()
 	RootComponent = meshComp;
 
 	healthComp = CreateDefaultSubobject<USHealthComponent>(TEXT("HealthComp"));
+
+	sphereComp = CreateDefaultSubobject<USphereComponent>(TEXT("SphereComp"));
+	sphereComp->SetSphereRadius(200);
+	sphereComp->SetCollisionResponseToAllChannels(ECR_Ignore);
+	sphereComp->SetCollisionResponseToChannel(ECC_Pawn, ECR_Overlap);
+	sphereComp->SetupAttachment(RootComponent);
 
 	m_bUseVelocityChange = false;
 	m_MovementForce = 1000;
@@ -92,6 +100,11 @@ FVector ASTrackerBot::GetNextPathPoint()
 	return GetActorLocation();
 }
 
+void ASTrackerBot::DamageSelf()
+{
+	UGameplayStatics::ApplyDamage(this, 20, GetInstigatorController(), this, nullptr);
+}
+
 // Called every frame
 void ASTrackerBot::Tick(float DeltaTime)
 {
@@ -118,6 +131,21 @@ void ASTrackerBot::Tick(float DeltaTime)
 	
 	
 	DrawDebugSphere(GetWorld(), m_NextPathPoint, 20, 12, FColor::Yellow, false, 0, 1);
+}
+
+void ASTrackerBot::NotifyActorBeginOverlap(AActor* OtherActor)
+{
+	if (startedSelfDestruct)
+		return;
+
+	ASCharacter* playerPawn = Cast<ASCharacter>(OtherActor);
+	if (playerPawn)
+	{
+		// overlap with a player
+
+		// Start sd sequence
+		GetWorldTimerManager().SetTimer(timerHandle_SelfDamage, this, &ASTrackerBot::DamageSelf, 0.5f, true, 0);
+	}
 }
 
 
