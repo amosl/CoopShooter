@@ -7,7 +7,7 @@
 #include "STrackerBot.generated.h"
 
 class USHealthComponent;
-
+class UParticleSystem;
 
 UCLASS()
 class COOPGAME_API ASTrackerBot : public APawn
@@ -32,6 +32,8 @@ protected:
 	void HandleTakeDamage(USHealthComponent* ownHealthComp, float Health, float HealthDelta, const class UDamageType* DamageType, 
 		class AController* InstigatedBy, AActor* DamageCauser);
 
+	void SelfDestruct();
+
 	FVector GetNextPathPoint();
 
 	FVector m_NextPathPoint;
@@ -45,6 +47,20 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "TrackerBot")
 	bool m_bUseVelocityChange;
 	
+	// Dynamic material to pulse damage
+	UMaterialInstanceDynamic* matInst;
+
+	UPROPERTY(EditDefaultsOnly, Category = "TrackerBot")
+	UParticleSystem* explodeEffect;
+
+	//UPROPERTY(ReplicatedUsing = OnRep_Exploded)
+	bool bDidExplode;
+
+	UPROPERTY(EditDefaultsOnly, Category = "TrackerBot")
+	float expRadius;
+
+	UPROPERTY(EditDefaultsOnly, Category = "TrackerBot")
+	float expDamage;
 
 public:	
 	// Called every frame
