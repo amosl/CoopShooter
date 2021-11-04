@@ -11,7 +11,7 @@
 #include "NavigationSystem.h"
 #include "NavigationPath.h"
 #include "DrawDebugHelpers.h"
-
+#include "Sound/SoundCue.h"
 
 
 // Sets default values
@@ -38,6 +38,7 @@ ASTrackerBot::ASTrackerBot()
 	m_DistThreshold = 100;
 	expDamage = 40;
 	expRadius = 200;
+	selfDamageInterval = 0.25f;
 }
 
 // Called when the game starts or when spawned
@@ -81,6 +82,8 @@ void ASTrackerBot::SelfDestruct()
 	UGameplayStatics::ApplyRadialDamage(this, expDamage, GetActorLocation(), expRadius, nullptr, ignoreList, this, GetInstigatorController(), true);
 
 	DrawDebugSphere(GetWorld(), GetActorLocation(), expRadius, 12, FColor::Red, false, 2, 0, 1);
+
+	UGameplayStatics::PlaySoundAtLocation(this, explodeSound, GetActorLocation());
 
 	Destroy();
 }
@@ -141,10 +144,12 @@ void ASTrackerBot::NotifyActorBeginOverlap(AActor* OtherActor)
 	ASCharacter* playerPawn = Cast<ASCharacter>(OtherActor);
 	if (playerPawn)
 	{
-		// overlap with a player
+		startedSelfDestruct = true;
 
 		// Start sd sequence
-		GetWorldTimerManager().SetTimer(timerHandle_SelfDamage, this, &ASTrackerBot::DamageSelf, 0.5f, true, 0);
+		GetWorldTimerManager().SetTimer(timerHandle_SelfDamage, this, &ASTrackerBot::DamageSelf, selfDamageInterval, true, 0);
+
+		UGameplayStatics::SpawnSoundAttached(selfDestructSound, RootComponent);
 	}
 }
 
