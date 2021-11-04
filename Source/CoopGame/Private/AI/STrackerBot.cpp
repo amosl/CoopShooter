@@ -2,6 +2,7 @@
 
 
 #include "AI/STrackerBot.h"
+#include "Components/SHealthComponent.h"
 #include "Components/StaticMeshComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "GameFramework/Character.h"
@@ -22,6 +23,8 @@ ASTrackerBot::ASTrackerBot()
 	meshComp->SetSimulatePhysics(true);
 	RootComponent = meshComp;
 
+	healthComp = CreateDefaultSubobject<USHealthComponent>(TEXT("HealthComp"));
+
 	m_bUseVelocityChange = false;
 	m_MovementForce = 1000;
 	m_DistThreshold = 100;
@@ -32,7 +35,17 @@ void ASTrackerBot::BeginPlay()
 {
 	Super::BeginPlay();
 	
+	healthComp->OnHealthChanged.AddDynamic(this, &ASTrackerBot::HandleTakeDamage);
 	m_NextPathPoint = GetNextPathPoint();
+}
+
+void ASTrackerBot::HandleTakeDamage(USHealthComponent* ownHealthComp, float Health, float HealthDelta, const UDamageType* DamageType, AController* InstigatedBy, AActor* DamageCauser)
+{
+	// Explode on death
+
+	// TODO: pulse the material on hit
+
+	UE_LOG(LogTemp, Log, TEXT("Health: %s of %s"), *FString::SanitizeFloat(Health), *GetName());
 }
 
 FVector ASTrackerBot::GetNextPathPoint()
