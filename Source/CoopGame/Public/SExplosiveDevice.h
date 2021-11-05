@@ -20,7 +20,7 @@ class COOPGAME_API ASExplosiveDevice : public AActor
 public:	
 	// Sets default values for this actor's properties
 	ASExplosiveDevice();
-
+	
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -37,8 +37,11 @@ protected:
 	UFUNCTION()
 	void OnHealthChanged(USHealthComponent* ownHealthComp, float Health, float HealthDelta, const class UDamageType* DamageType, class AController* InstigatedBy, AActor* DamageCauser);
 
-	UPROPERTY(BlueprintReadOnly, Category = "Barrel")
+	UPROPERTY(ReplicatedUsing= OnRep_Exploded)
 	bool bDidExplode;
+
+	UFUNCTION()
+	void OnRep_Exploded();
 
 protected:
 	

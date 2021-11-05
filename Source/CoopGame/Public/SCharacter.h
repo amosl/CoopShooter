@@ -20,6 +20,8 @@ public:
 	// Sets default values for this character's properties
 	ASCharacter();
 
+	void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -50,6 +52,7 @@ protected:
 	void BeginZoom();
 	void EndZoom();
 
+	UPROPERTY(Replicated)
 	ASweapon* currentWeapon;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Player")
@@ -64,7 +67,7 @@ protected:
 	UFUNCTION()
 	void OnHealthChanged(USHealthComponent* ownHealthComp, float Health, float HealthDelta, const class UDamageType* DamageType, class AController* InstigatedBy, AActor* DamageCauser);
 
-	UPROPERTY(BlueprintReadOnly, Category = "Player")
+	UPROPERTY(Replicated, BlueprintReadOnly, Category = "Player")
 	bool bIsDead;
 public:	
 	// Called every frame
