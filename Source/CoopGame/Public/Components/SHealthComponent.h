@@ -7,7 +7,7 @@
 #include "SHealthComponent.generated.h"
 
 // OnHealthChanged Event
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_SixParams(FOnHealthChangedSignature, USHealthComponent*, HealthComp, float, Health, float, HealthDelta, const class UDamageType*, DamageType, class AController*, InstigatedBy, AActor*, DamageCauser);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_SixParams(FOnHealthChangedSignature, USHealthComponent*, OwnHealthComp, float, Health, float, HealthDelta, const class UDamageType*, DamageType, class AController*, InstigatedBy, AActor*, DamageCauser);
 
 
 UCLASS( ClassGroup=(COOP), meta=(BlueprintSpawnableComponent) )
@@ -25,8 +25,11 @@ protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
 
-	UPROPERTY(Replicated, BlueprintReadOnly, Category= "HealthComponent")
+	UPROPERTY(ReplicatedUsing= OnRep_Health, BlueprintReadOnly, Category= "HealthComponent")
 	float m_Health;
+
+	UFUNCTION()
+	void OnRep_Health(float prevHealth);
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "HealthComponent")
 	float m_DefaultHealth;
