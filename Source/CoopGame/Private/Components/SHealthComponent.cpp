@@ -33,6 +33,11 @@ void USHealthComponent::BeginPlay()
 	m_Health = m_DefaultHealth;
 }
 
+void USHealthComponent::OnRep_Health(float prevHealth)
+{
+	OnHealthChanged.Broadcast(this, m_Health, m_Health-prevHealth, nullptr, nullptr, nullptr);
+}
+
 void USHealthComponent::HandleTakeDamage(AActor* DamagedActor, float Damage, const UDamageType* DamageType, 
 	AController* InstigatedBy, AActor* DamageCauser)
 {
