@@ -8,6 +8,7 @@
 
 class USphereComponent;
 class UDecalComponent;
+class ASPowerupActor;
 
 
 UCLASS()
@@ -30,4 +31,17 @@ protected:
 	UPROPERTY(VisibleAnywhere, Category = "Components")
 	UDecalComponent* decalComp;
 
+	UPROPERTY(EditDefaultsOnly, Category = "PickupActor")
+	TSubclassOf<ASPowerupActor> powerupClass;
+
+	UPROPERTY(EditDefaultsOnly, Category = "PickupActor")
+	ASPowerupActor* powerupInstance;
+
+	UPROPERTY(EditDefaultsOnly, Category = "PickupActor")
+	float cooldownDuration;
+
+	FTimerHandle timerHandle_Respawn;
+
+	UFUNCTION()
+	void Respawn();
 };
