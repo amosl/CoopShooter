@@ -31,13 +31,13 @@ protected:
 	UPROPERTY(VisibleAnywhere, Category = "Components")
 	UDecalComponent* decalComp;
 
-	UPROPERTY(EditDefaultsOnly, Category = "PickupActor")
+	UPROPERTY(EditInstanceOnly, Category = "PickupActor")
 	TSubclassOf<ASPowerupActor> powerupClass;
 
 	UPROPERTY(EditDefaultsOnly, Category = "PickupActor")
 	ASPowerupActor* powerupInstance;
 
-	UPROPERTY(EditDefaultsOnly, Category = "PickupActor")
+	UPROPERTY(EditInstanceOnly, Category = "PickupActor")
 	float cooldownDuration;
 
 	FTimerHandle timerHandle_Respawn;
