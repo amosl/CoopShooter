@@ -20,6 +20,7 @@ ASPickupActor::ASPickupActor()
 	decalComp->SetupAttachment(RootComponent);
 
 	cooldownDuration = 10.0f;
+	SetReplicates(true);
 }
 
 // Called when the game starts or when spawned
@@ -27,21 +28,25 @@ void ASPickupActor::BeginPlay()
 {
 	Super::BeginPlay();
 	
-	Respawn();
+	if (HasAuthority())
+	{
+		Respawn();
+	}
 }
 
 void ASPickupActor::NotifyActorBeginOverlap(AActor* OtherActor)
 {
 	Super::NotifyActorBeginOverlap(OtherActor);
 
-	if (powerupInstance)
+	if (powerupInstance && HasAuthority())
 	{
 		powerupInstance->ActivatePowerup();
 		powerupInstance = nullptr;
+
+		// Set timer to respawn
+		GetWorldTimerManager().SetTimer(timerHandle_Respawn, this, &ASPickupActor::Respawn, cooldownDuration);
 	}
 
-	// Set timer to respawn
-	GetWorldTimerManager().SetTimer(timerHandle_Respawn, this, &ASPickupActor::Respawn, cooldownDuration);
 }
 
 void ASPickupActor::Respawn()

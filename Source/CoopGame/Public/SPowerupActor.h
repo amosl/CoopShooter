@@ -16,8 +16,7 @@ public:
 	ASPowerupActor();
 
 protected:
-	// Called when the game starts or when spawned
-	virtual void BeginPlay() override;
+	
 
 	// Tick interval
 	UPROPERTY(EditDefaultsOnly, Category = "Powerups")
@@ -29,8 +28,16 @@ protected:
 	int32 ticksProcessed;
 
 	FTimerHandle timerHandle_PowerupTick;
-
 	
+	UPROPERTY(ReplicatedUsing= OnRep_PowerupActive)
+	bool bIsPowerupActive;
+	
+	UFUNCTION()
+	void OnRep_PowerupActive();
+
+	UFUNCTION(BlueprintImplementableEvent, Category = "Powerups")
+	void OnPowerupStateChanged(bool bActive);
+
 	void OnTickPowerup();
 public:	
 	
