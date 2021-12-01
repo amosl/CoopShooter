@@ -43,4 +43,6 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "HealthComponent")
 	void Heal(float amount);
+
+	float GetHealth() const;
 };
