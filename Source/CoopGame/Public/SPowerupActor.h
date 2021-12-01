@@ -41,10 +41,10 @@ protected:
 	void OnTickPowerup();
 public:	
 	
-	void ActivatePowerup();
+	void ActivatePowerup(AActor* activateFor);
 
 	UFUNCTION(BlueprintImplementableEvent, Category = "Powerups")
-	void OnActivated();
+	void OnActivated(AActor* activateFor);
 
 	UFUNCTION(BlueprintImplementableEvent, Category = "Powerups")
 	void OnExpired();
