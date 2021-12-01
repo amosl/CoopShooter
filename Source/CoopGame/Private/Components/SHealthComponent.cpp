@@ -51,6 +51,17 @@ void USHealthComponent::HandleTakeDamage(AActor* DamagedActor, float Damage, con
 	OnHealthChanged.Broadcast(this, m_Health, Damage, DamageType, InstigatedBy, DamageCauser);
 }
 
+void USHealthComponent::Heal(float amount)
+{
+	if (amount <= 0.0f || m_Health <= 0.0f)
+		return;
+
+	m_Health = FMath::Clamp(m_Health + amount, 0.0f, m_DefaultHealth);
+	UE_LOG(LogTemp, Log, TEXT("Health Changed: %s (+%s)"), *FString::SanitizeFloat(m_Health), *FString::SanitizeFloat(amount));
+
+	OnHealthChanged.Broadcast(this, m_Health, -amount, nullptr, nullptr, nullptr);
+}
+
 void USHealthComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
