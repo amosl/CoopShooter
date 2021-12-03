@@ -9,6 +9,16 @@ void ASGameState::OnRep_WaveState(EWaveState fromState)
 	WaveStateChanged(waveState, fromState);
 }
 
+void ASGameState::SetWaveState(EWaveState toState)
+{
+	if (HasAuthority())
+	{
+		EWaveState oldState = waveState;
+		waveState = toState;
+		OnRep_WaveState(oldState);
+	}
+}
+
 void ASGameState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
