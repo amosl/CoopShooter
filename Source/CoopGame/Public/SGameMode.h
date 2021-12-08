@@ -43,6 +43,7 @@ protected:
 	void CheckAnyPlayersAlive();
 	void GameOver();
 	void SetWaveState(EWaveState newState);
+	void RespawnPlayers();
 
 public:
 	ASGameMode();

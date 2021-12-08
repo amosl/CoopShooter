@@ -36,8 +36,10 @@ void ASGameMode::EndWave()
 
 void ASGameMode::PrepareNextWave()
 {
-	SetWaveState(EWaveState::Idle);
 	GetWorldTimerManager().SetTimer(timer_NextWaveStart, this, &ASGameMode::StartWave, timeBetweenWaves, false);
+	SetWaveState(EWaveState::Idle);
+
+	RespawnPlayers();
 }
 
 void ASGameMode::CheckWaveState()
@@ -108,6 +110,18 @@ void ASGameMode::SetWaveState(EWaveState newState)
 	if (ensureAlways(gs))
 	{
 		gs->SetWaveState(newState);
+	}
+}
+
+void ASGameMode::RespawnPlayers()
+{
+	for (FConstPlayerControllerIterator it = GetWorld()->GetPlayerControllerIterator(); it; ++it)
+	{
+		APlayerController* pcont = it->Get();
+		if (pcont && pcont->GetPawn() == nullptr)
+		{
+			RestartPlayer(pcont);
+		}
 	}
 }
 
